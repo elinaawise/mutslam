@@ -20,6 +20,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.commons.configuration.PropertiesConfiguration;
 
 public class Generator {
 
@@ -97,8 +98,9 @@ public class Generator {
 
   public static void main(String[] args) throws Exception {
 
-    ZooKeeperInstance zki = new ZooKeeperInstance("test16", "localhost");
-    Connector conn = zki.getConnector("root", new PasswordToken("secret"));
+    PropertiesConfiguration config = new PropertiesConfiguration(args[0]);
+    ZooKeeperInstance zki = new ZooKeeperInstance(config);
+    Connector conn = zki.getConnector(config.getString("user.name"), new PasswordToken(config.getString("user.password")));
 
     boolean walog = true;
 
@@ -109,20 +111,29 @@ public class Generator {
         System.out.println();
         System.out.println("RERUNNING all test");
         System.out.println();
+      } else {
+        System.out.println();
       }
+
       System.out.printf("Running tests w/ walog: %b  shared batch writer: %b\n", walog, true);
+      System.out.println("  This test threads w/ group commit on the client side, using a single batch writer.");
+      System.out.println("  Each thread flushes after each mutation");
       for (int nt : tests) {
         runTest(conn, nt, 1, true, walog, true);
       }
 
       System.out.println();
       System.out.printf("Running tests w/ walog: %b  shared batch writer: %b\n", walog, false);
+      System.out.println("  This test threads w/ group commit on the server side, using a batch writer per thread");
+      System.out.println("  Each thread flushes after each mutation");
       for (int nt : tests) {
         runTest(conn, nt, 1, true, walog, false);
       }
 
       System.out.println();
       System.out.printf("Running tests w/ walog: %b  shared batch writer: %b\n", walog, false);
+      System.out.println("  This test a single thread write a different batch sizes of mutations, flushing after each batch.");
+      System.out.println("  Group commit should approach these times for the same number mutations.");
       for (int nb : tests) {
         runTest(conn, 1, nb, true, walog, false);
       }
@@ -191,7 +202,8 @@ public class Generator {
 
     int totalNumMutations = numToWrite * numThreads * numToBatch;
     double rate = totalNumMutations / (sum / (double) wasks.size());
-    System.out.printf("\ttime: %8.2f #threads: %3d  #batch: %2d  #mutations: %4d rate: %6.2f\n", sum / (double) wasks.size(), numThreads, numToBatch,
+    System.out.printf("\ttime: %8.2f #threads: %3d  #batch: %2d  #mutations: %4d rate: %6.2f mutations/ms\n", sum / (double) wasks.size(), numThreads,
+        numToBatch,
         totalNumMutations, rate);
 
     conn.tableOperations().delete("mutslam");
