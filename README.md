@@ -1,4 +1,9 @@
-mutslam
+Mutslam
 =======
 
-A simple utility for testing Accumulo group commit performance
+A simple project that test Accumulo's group commit performance.  
+
+```
+mvn exec:java -Dexec.mainClass=mutslam.Generator 
+```
+
