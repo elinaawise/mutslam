@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 
 public class MiniRunner {
@@ -18,8 +16,12 @@ public class MiniRunner {
     
     MiniAccumuloConfig macConfig = new MiniAccumuloConfig(new File(args[0]), "secret");
     Map<String, String> site = new HashMap<String, String>();
-    site.put("instance.volumes", dfscluster.getURI().toString());
+    // instance.volumes was not working, and the following does not seem to work either
+    site.put("instance.dfs.uri", dfscluster.getURI().toString());
+    macConfig.setSiteConfig(site);
     
+    System.out.println(site);
+
     MiniAccumuloCluster mac = new MiniAccumuloCluster(macConfig);
     mac.start();
     
