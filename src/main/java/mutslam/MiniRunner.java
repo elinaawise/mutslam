@@ -5,8 +5,10 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.accumulo.minicluster.MemoryUnit;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
+import org.apache.accumulo.minicluster.ServerType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 
@@ -17,6 +19,7 @@ public class MiniRunner {
       System.out.println("Usage : "+MiniRunner.class.getName()+" <mac dir> <output props file>");
     }
     
+    // its important to use dfs for group commit performance since hsync() calls are made when using dfs. The calls to hsync() are slow.
     MiniDFSCluster dfscluster = new MiniDFSCluster.Builder(new Configuration()).build();
     //System.out.println(dfscluster.getURI());
     
@@ -24,8 +27,9 @@ public class MiniRunner {
     Map<String, String> site = new HashMap<String, String>();
     //setting instance.volumes was not working
     site.put("instance.dfs.uri", dfscluster.getURI().toString());
+    site.put("tserver.memory.maps.max", "512M");
     macConfig.setSiteConfig(site);
-    
+    macConfig.setMemory(ServerType.TABLET_SERVER, 1, MemoryUnit.GIGABYTE);
     //System.out.println(site);
 
     MiniAccumuloCluster mac = new MiniAccumuloCluster(macConfig);
