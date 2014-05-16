@@ -28,6 +28,7 @@ public class MiniRunner {
     //setting instance.volumes was not working
     site.put("instance.dfs.uri", dfscluster.getURI().toString());
     site.put("tserver.memory.maps.max", "512M");
+    site.put("tserver.server.threads.minimum", "128");
     macConfig.setSiteConfig(site);
     macConfig.setMemory(ServerType.TABLET_SERVER, 1, MemoryUnit.GIGABYTE);
     //System.out.println(site);
