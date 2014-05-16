@@ -2,7 +2,7 @@ Mutslam
 =======
 
 A simple project that test Accumulo's group commit performance.  This test was
-created to assess the impact of [ACCUMULO-2677][1]  
+created to assess the impact of [ACCUMULO-2766][1]  
 
 Use the following command to run this program against an Accumulo instance.
 
