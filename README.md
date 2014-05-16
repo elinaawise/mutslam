@@ -26,7 +26,8 @@ to the accumulo-site.xml...
   </property>
 ```
 
-...or execute the following command in the shell.  
+...or execute the following command in the shell.  I think the following should
+work w/ a running tserver, but have not tried it.
 
 
 ```
